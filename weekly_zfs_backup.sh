@@ -11,9 +11,9 @@ SNAPSHOT_NAME="weekly_snapshot-${TIMESTAMP}"
 BACKUP_CLONE_NAME="weekly_clone-${TIMESTAMP}"
 LOG_FILE="/var/log/proxmox-backup-week.log"
 SCRIPT_NAME="$(basename "$0")"
-RETENTION_DAYS=2  # Keep snapshots for N days (2 weeks for weekly backups)
+RETENTION_DAYS=52  # Keep snapshots for N days (2 weeks for weekly backups)
 BACKUP_LOCATION="/mnt/usb"
-BACKUP_RETENTION_DAYS=2  # Keep external backups for N days
+BACKUP_RETENTION_DAYS=52  # Keep external backups for N days
 
 # Logging function
 log() {
