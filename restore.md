@@ -23,3 +23,5 @@ setzbar via:
 CURRENT_ROOT=$(findmnt -n -o SOURCE /)
 ACL_TYPE=$(zfs get -H -o value acltype "$CURRENT_ROOT")
 zfs set acltype="$ACL_TYPE" rpool/ROOT/weekly-restored
+
+default boot params as of 2025-09-17: root=ZFS=rpool/ROOT/pve-1 boot=zfs pcie_aspm=off pci=nommconf l1tf=full,force loglevel=4
