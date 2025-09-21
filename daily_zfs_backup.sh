@@ -29,6 +29,7 @@ log() {
 # Error handler
 error_exit() {
     log "ERROR" "$1"
+    echo "$SESSION_LOG" | mail -s "ERROR on Daily ZFS Backup Report for ${SNAPSHOT_NAME} - completed: $(date +%Y%m%d-%H%M%S)" pve@recordingbeats.net
     exit 1
 }
 
