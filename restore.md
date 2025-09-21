@@ -25,3 +25,10 @@ ACL_TYPE=$(zfs get -H -o value acltype "$CURRENT_ROOT")
 zfs set acltype="$ACL_TYPE" rpool/ROOT/weekly-restored
 
 default boot params as of 2025-09-17: root=ZFS=rpool/ROOT/pve-1 boot=zfs pcie_aspm=off pci=nommconf l1tf=full,force loglevel=4
+
+#### going back to grub / systemd-boot
+## systemd-boot
+sgdisk -p /dev/sdx  # usually sda
+efibootmgr -c -d /dev/sdX -p 2 -L "Linux Boot Manager" -l '\EFI\systemd\systemd-bootx64.efi'
+e.g.
+efibootmgr -c -d /dev/sda -p 2 -L "Linux Boot Manager" -l '\EFI\systemd\systemd-bootx64.efi'
