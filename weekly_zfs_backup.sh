@@ -6,10 +6,11 @@
 set -euo pipefail  # Exit on error, undefined vars, pipe failures
 
 # Configuration
-TIMESTAMP="$(date +%Y%m%d-%H%M)"
+TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 SNAPSHOT_NAME="weekly_snapshot-${TIMESTAMP}"
 BACKUP_CLONE_NAME="weekly_clone-${TIMESTAMP}"
 LOG_FILE="/var/log/proxmox-backup-week.log"
+SESSION_LOG="WEEKLY SESSION BACKUP LOG from ${TIMESTAMP}"$'\n'
 SCRIPT_NAME="$(basename "$0")"
 RETENTION_DAYS=52  # Keep snapshots for N days (2 weeks for weekly backups)
 BACKUP_LOCATION="/mnt/usb"
@@ -21,12 +22,16 @@ log() {
     shift
     local message="$*"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "[$timestamp] [$level] $message" | tee -a "$LOG_FILE"
+    local log_line="[$timestamp] [$level] $message"
+      
+    echo "$log_line" | tee -a "$LOG_FILE"
+    SESSION_LOG+="$log_line"$'\n'
 }
 
 # Error handler
 error_exit() {
     log "ERROR" "$1"
+    echo "$SESSION_LOG" | mail -s "ERROR on WEEKLY ZFS Backup Report for ${SNAPSHOT_NAME} - completed: $(date +%Y%m%d-%H%M%S)" pve@recordingbeats.net
     exit 1
 }
 
@@ -224,5 +229,7 @@ ensure_readonly
 log "INFO" "External backup completed successfully"
 log "INFO" "To boot from backup, select 'weekly_clone-${TIMESTAMP}' from ZFS boot menu"
 log "INFO" "To restore from external backup: zfs receive < $BACKUP_FILE"
+
+echo "$SESSION_LOG" | mail -s "Weekly ZFS Backup Report for ${SNAPSHOT_NAME} - completed: $(date +%Y%m%d-%H%M%S)" mail@example.com
 
 exit 0
