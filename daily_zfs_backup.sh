@@ -1,15 +1,16 @@
 #!/bin/bash
 
 # Proxmox ZFS Root Snapshot & Backup Script
-# Creates bootable backup clone of current root filesystem e.g. for Proxmox VE
+# Creates bootable backup clone of current root filesystem
 
 set -euo pipefail  # Exit on error, undefined vars, pipe failures
 
 # Configuration
-TIMESTAMP="$(date +%Y%m%d-%H%M)"
+TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 SNAPSHOT_NAME="daily_snapshot-${TIMESTAMP}"
 BACKUP_CLONE_NAME="daily_clone-${TIMESTAMP}"
 LOG_FILE="/var/log/proxmox-backup-day.log"
+SESSION_LOG="DAILY SESSION BACKUP LOG from ${TIMESTAMP}"$'\n'
 SCRIPT_NAME="$(basename "$0")"
 RETENTION_DAYS=60  # Keep snapshots for N days
 
@@ -19,7 +20,10 @@ log() {
     shift
     local message="$*"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "[$timestamp] [$level] $message" | tee -a "$LOG_FILE"
+    local log_line="[$timestamp] [$level] $message"
+      
+    echo "$log_line" | tee -a "$LOG_FILE"
+    SESSION_LOG+="$log_line"$'\n'
 }
 
 # Error handler
@@ -161,5 +165,8 @@ log "INFO" "Backup process completed successfully"
 log "INFO" "Snapshot: ${CURRENT_DATASET}@${SNAPSHOT_NAME}"
 log "INFO" "Backup clone: $BACKUP_DATASET"
 log "INFO" "To boot from backup, select 'daily_clone-${TIMESTAMP}' from ZFS boot menu"
+
+echo "$SESSION_LOG" | mail -s "Daily ZFS Backup Report for ${SNAPSHOT_NAME} - completed: $(date +%Y%m%d-%H%M%S)" mail@example.com
+
 
 exit 0
